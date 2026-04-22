@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GhostNet Support</title>
+  <script src="https://js.puter.com/v2/"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -570,6 +571,7 @@
 </div>
 
 <script>
+  const PUTER_ENABLED = typeof globalThis.puter !== 'undefined';
   const homeView = document.getElementById('homeView');
   const chatView = document.getElementById('chatView');
   const chatMessages = document.getElementById('chatMessages');
@@ -611,17 +613,33 @@
     return div;
   }
 
+  async function normalizeInputWithPuter(input) {
+    if (!PUTER_ENABLED || !input) return input;
+
+    try {
+      const prompt =
+        'Rewrite the user message into a short, plain query for a deterministic FAQ bot. ' +
+        'Keep intent and key terms, remove filler, no extra commentary.\n\nUser message:\n' + input;
+      const response = await puter.ai.chat(prompt);
+      const normalized = String(response ?? '').trim();
+      return normalized || input;
+    } catch {
+      return input;
+    }
+  }
+
   async function sendMessage(text) {
     if (!text.trim()) return;
     const userInput = text.trim();
     addMsg(userInput, 'user');
     chatInput.value = '';
+    const normalizedInput = await normalizeInputWithPuter(userInput);
 
     try {
       const res = await fetch('/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userInput }),
+        body: JSON.stringify({ message: normalizedInput }),
       });
       const data = await res.json();
       if (typeof data.reply === 'string') {

@@ -58,6 +58,7 @@
     ]
   },
   "dependencies": {
+    "@heyputer/puter.js": "^2.2.15",
     "@noble/ciphers": "^1.3.0",
     "@noble/curves": "^1.8.1",
     "@noble/hashes": "^1.7.1",
