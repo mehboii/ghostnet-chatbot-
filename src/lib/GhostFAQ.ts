@@ -1,10 +1,8 @@
 export class GhostSupportBot {
-  private lastIntent: string | null;
   private fallback: string;
   private db: Array<{ intent: string; keywords: string[]; response: string }>;
 
   constructor() {
-    this.lastIntent = null;
     this.fallback =
       "Terminal Error: Unrecognized command. Please specify if your query relates to 'authentication', 'encryption', 'hardware', or 'source'.";
 
@@ -242,15 +240,14 @@ export class GhostSupportBot {
     }
 
     if (bestMatch && highestScore > 0) {
-      this.lastIntent = bestMatch.intent;
       return bestMatch.response;
     }
 
     // Task 3: Puter fallback with safe try/catch
     try {
-      // @ts-ignore
+      // @ts-expect-error puter is a browser global injected by puter.js
       if (typeof puter !== 'undefined') {
-        // @ts-ignore
+        // @ts-expect-error puter is a browser global injected by puter.js
         const aiResponse = await puter.ai.chat(userInput);
         return aiResponse.toString();
       }
