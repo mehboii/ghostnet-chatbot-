@@ -611,34 +611,24 @@
     return div;
   }
 
-  function addTyping() {
-    const div = document.createElement('div');
-    div.className = 'chat-msg bot';
-    div.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return div;
-  }
-
   async function sendMessage(text) {
     if (!text.trim()) return;
-    addMsg(text, 'user');
+    const userInput = text.trim();
+    addMsg(userInput, 'user');
     chatInput.value = '';
-
-    const typing = addTyping();
 
     try {
       const res = await fetch('/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: userInput }),
       });
       const data = await res.json();
-      typing.remove();
-      addMsg(data.reply ?? data.error, 'bot');
+      if (typeof data.reply === 'string') {
+        addMsg(data.reply, 'bot');
+      }
     } catch {
-      typing.remove();
-      addMsg('Terminal Error: Connection to support server lost.', 'bot');
+      // Intentionally avoid injecting synthetic bot replies.
     }
   }
 
