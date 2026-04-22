@@ -160,6 +160,100 @@ describe('GhostSupportBot', () => {
       expect(reply).toContain('Polygon');
       expect(reply).toContain('USDC');
     });
+
+    it('matches hardware intent for raspberry queries', () => {
+      const reply = bot.ask('raspberry');
+      expect(reply).toBe(
+        'GhostNet nodes are optimized for low-resource hardware. A standard Raspberry Pi 4/5 or mid-tier Android device (e.g., Redmi 13C 5G) is sufficient to run the core relay firmware and local mesh modules.'
+      );
+    });
+
+    it('matches installation intent for npm queries', () => {
+      const reply = bot.ask('npm');
+      expect(reply).toBe(
+        'To initialize the SDK, run `npm install ghostnet-sdk`. Instantiate the core network class with your configuration options to begin deriving your BLAKE3 node identity.'
+      );
+    });
+
+    it('matches troubleshooting intent for error queries', () => {
+      const reply = bot.ask('error');
+      expect(reply).toBe(
+        'If your node drops connection, the SDK will attempt exponential backoff reconnection. Check local BLE permissions and ensure your AES-256-GCM keys are correctly formatted. For critical framework vulnerabilities, contact security@n11x.dev.'
+      );
+    });
+
+    it('matches architecture intent for server queries', () => {
+      const reply = bot.ask('server');
+      expect(reply).toBe(
+        'GhostNet operates on a strict zero-trust, peer-to-peer mesh topology. There are no central servers. Data is routed directly between physical node identities.'
+      );
+    });
+
+    it('matches n11x ethos intent for n11x queries', () => {
+      const reply = bot.ask('n11x');
+      expect(reply).toBe(
+        'The N11X Collective engineers sovereign, decentralized systems. We prioritize pure privacy, dark-tech precision, and zero-trust infrastructure over standard corporate software models.'
+      );
+    });
+
+    it('matches ghost card intent for card queries', () => {
+      const reply = bot.ask('card');
+      expect(reply).toBe(
+        'The Ghost Card serves as your visual cryptographic identity. It displays your active network status flags alongside a truncated BLAKE3 hash representation of your public key.'
+      );
+    });
+
+    it('matches limits intent for payload queries', () => {
+      const reply = bot.ask('payload');
+      expect(reply).toBe(
+        'All payloads are AES-256-GCM encrypted. For optimal Proximity Connect routing over BLE, individual packets should remain lightweight. Larger data transfers are handled via our automated store-and-forward chunking protocol.'
+      );
+    });
+
+    it('matches dependencies intent for cost queries', () => {
+      const reply = bot.ask('cost');
+      expect(reply).toBe(
+        'GhostNet relies on zero external APIs or paid subscriptions. The network is entirely self-hosted and decentralized, ensuring operations remain free and sovereign indefinitely.'
+      );
+    });
+
+    it('matches joke server intent for joke queries', () => {
+      const reply = bot.ask('joke');
+      expect(reply).toBe(
+        "Why did the centralized server cross the road? It didn't. It crashed, took the whole API down with it, and billed you for the downtime. Skill issue."
+      );
+    });
+
+    it('matches slang based intent for based queries', () => {
+      const reply = bot.ask('based');
+      expect(reply).toBe(
+        "No cap, centralized infrastructure is not based. GhostNet is strict sigma architecture. 100% decentralized rizz, zero API fees. We don't rely on third-party servers."
+      );
+    });
+
+    it('matches slang cook intent for cook queries', () => {
+      const reply = bot.ask('cook');
+      expect(reply).toBe(
+        'The N11X Collective is currently cooking. Our memory-hard Argon2id implementation is fully baked. Let the nodes cook in Phantom tier.'
+      );
+    });
+
+    it('matches slang touch grass intent for grass queries', () => {
+      const reply = bot.ask('grass');
+      expect(reply).toBe(
+        "Go touch grass. GhostNet's Proximity Connect works offline via Bluetooth Low Energy (BLE), so your nodes will stay securely meshed even if you are out in the woods."
+      );
+    });
+
+    it('matches joke feds intent for sus queries', () => {
+      const reply = bot.ask('sus');
+      expect(reply).toBe('Nice try, fed. Ghost Shield is active. Your telemetry is cooked.');
+    });
+
+    it('matches joke feds intent for natural fed phrasing', () => {
+      const reply = bot.ask('are you a fed?');
+      expect(reply).toBe('Nice try, fed. Ghost Shield is active. Your telemetry is cooked.');
+    });
   });
 
   describe('fallback', () => {
@@ -171,6 +265,22 @@ describe('GhostSupportBot', () => {
     it('returns terminal error for empty input', () => {
       const reply = bot.ask('');
       expect(reply).toContain('Terminal Error');
+    });
+  });
+
+  describe('regex engine behavior', () => {
+    it('matches installation intent from multiline punctuated input', () => {
+      const reply = bot.ask('Hey,\n I want to install the npm package.\n How do I do it?');
+      expect(reply).toBe(
+        'To initialize the SDK, run `npm install ghostnet-sdk`. Instantiate the core network class with your configuration options to begin deriving your BLAKE3 node identity.'
+      );
+    });
+
+    it('does not match hardware intent when input only contains api', () => {
+      const reply = bot.ask('I need an api reference for integration');
+      expect(reply).not.toBe(
+        'GhostNet nodes are optimized for low-resource hardware. A standard Raspberry Pi 4/5 or mid-tier Android device (e.g., Redmi 13C 5G) is sufficient to run the core relay firmware and local mesh modules.'
+      );
     });
   });
 });
