@@ -207,6 +207,21 @@ export class GhostSupportBot {
         keywords: ['sus', 'fed', 'telemetry', 'are you a fed?'],
         response: 'Nice try, fed. Ghost Shield is active. Your telemetry is cooked.',
       },
+      {
+        intent: "blake3",
+        keywords: ["blake3", "hash", "hashing", "parallelizable", "integrity"],
+        response: "GhostNet uses BLAKE3 for cryptographic hashing. Operating at 6.8 GB/s, it is highly parallelizable and used to guarantee content integrity across the mesh network."
+      },
+      {
+        intent: "ed25519",
+        keywords: ["ed25519", "elliptic", "curve", "signature", "signatures", "identity"],
+        response: "We utilize Ed25519 for elliptic curve signatures. It provides high-speed 128-bit security and is strictly used for core node identity generation and message authentication."
+      },
+      {
+        intent: "aes-256-gcm",
+        keywords: ["aes-256-gcm", "aes", "gcm", "vault", "transport", "encryption", "encrypt"],
+        response: "GhostNet relies on AES-256-GCM for authenticated encryption. It secures local vault storage and handles all end-to-end inter-node mesh transport."
+      },
     ];
   }
 
