@@ -484,50 +484,14 @@
 
   <!-- Home View -->
   <div class="widget-body home-view" id="homeView">
-    <!-- Recent conversations -->
-    <div class="section-label">Recent message</div>
-    <div class="conversation-list">
-      <div class="conversation-item" id="openChat">
-        <div class="avatar-group">
-          <div class="avatar">G</div>
-          <div class="avatar">N</div>
-        </div>
-        <div class="conv-text">
-          <div class="conv-title">GhostNet Support</div>
-          <div class="conv-preview">Ask me about the mesh network...</div>
-        </div>
-        <div class="conv-time">now</div>
-      </div>
-    </div>
-
     <!-- Search -->
     <div class="search-section">
       <form class="search-bar" id="searchForm">
-        <input type="text" id="searchInput" placeholder="Search for help" />
+        <input type="text" id="searchInput" placeholder="Ask about GhostNet..." />
         <button type="submit">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
       </form>
-    </div>
-
-    <!-- Help links -->
-    <div class="help-links">
-      <div class="help-link" data-query="How does authentication work?">
-        <span>Authentication &amp; identity security</span>
-        <span class="arrow">&rsaquo;</span>
-      </div>
-      <div class="help-link" data-query="How is data encrypted?">
-        <span>End-to-end encryption details</span>
-        <span class="arrow">&rsaquo;</span>
-      </div>
-      <div class="help-link" data-query="How does ghost shield cloaking work?">
-        <span>Ghost Shield &amp; network cloaking</span>
-        <span class="arrow">&rsaquo;</span>
-      </div>
-      <div class="help-link" data-query="How does Bluetooth proximity connect work?">
-        <span>Proximity Connect via BLE</span>
-        <span class="arrow">&rsaquo;</span>
-      </div>
     </div>
   </div>
 
@@ -570,8 +534,10 @@
   </div>
 </div>
 
-<script>
-  const PUTER_ENABLED = typeof globalThis.puter !== 'undefined';
+<script type="module">
+  import { GhostSupportBot } from '../dist/index.js';
+
+  const bot = new GhostSupportBot();
   const homeView = document.getElementById('homeView');
   const chatView = document.getElementById('chatView');
   const chatMessages = document.getElementById('chatMessages');
@@ -580,10 +546,8 @@
   const searchForm = document.getElementById('searchForm');
   const searchInput = document.getElementById('searchInput');
   const backBtn = document.getElementById('backBtn');
-  const openChat = document.getElementById('openChat');
   const navHome = document.getElementById('navHome');
   const navMessages = document.getElementById('navMessages');
-  const helpLinks = document.querySelectorAll('.help-link');
 
   function showChat(initialQuery) {
     homeView.classList.add('hidden');
@@ -613,45 +577,18 @@
     return div;
   }
 
-  async function normalizeInputWithPuter(input) {
-    if (!PUTER_ENABLED || !input) return input;
-
-    try {
-      const prompt =
-        'Rewrite the user message into a short, plain query for a deterministic FAQ bot. ' +
-        'Keep intent and key terms, remove filler, no extra commentary.\n\nUser message:\n' + input;
-      const response = await puter.ai.chat(prompt);
-      const normalized = String(response ?? '').trim();
-      return normalized || input;
-    } catch {
-      return input;
-    }
-  }
 
   async function sendMessage(text) {
     if (!text.trim()) return;
     const userInput = text.trim();
     addMsg(userInput, 'user');
     chatInput.value = '';
-    const normalizedInput = await normalizeInputWithPuter(userInput);
 
-    try {
-      const res = await fetch('/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: normalizedInput }),
-      });
-      const data = await res.json();
-      if (typeof data.reply === 'string') {
-        addMsg(data.reply, 'bot');
-      }
-    } catch {
-      // Intentionally avoid injecting synthetic bot replies.
-    }
+    const response = await bot.ask(userInput);
+    addMsg(response, 'bot');
   }
 
   // Event listeners
-  openChat.addEventListener('click', () => showChat());
   backBtn.addEventListener('click', showHome);
   navHome.addEventListener('click', showHome);
   navMessages.addEventListener('click', () => showChat());
@@ -669,12 +606,6 @@
       searchInput.value = '';
       showChat(q);
     }
-  });
-
-  helpLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      showChat(link.dataset.query);
-    });
   });
 </script>
 
