@@ -59,27 +59,27 @@ export class GhostSupportBot {
       },
       {
         intent: 'ghost_shield',
-        keywords: ['ghost shield', '3-tier'],
+        keywords: ['ghost shield', '3-tier', 'what is ghost shield'],
         response: 'Ghost Shield is our 3-tier privacy system that provides varying levels of network obfuscation.',
       },
       {
         intent: 'tiers',
-        keywords: ['tier', 'stealth', 'phantom', 'each tier'],
+        keywords: ['tier', 'stealth', 'phantom', 'each tier', 'what does each tier do'],
         response: 'Ghost Shield tiers include Stealth (obfuscated traffic) and Phantom (fully anonymous mesh routing).',
       },
       {
         intent: 'full_ghost',
-        keywords: ['full ghost', 'invisible', 'full ghost protocol'],
+        keywords: ['full ghost', 'invisible', 'full ghost protocol', 'what is full ghost'],
         response: 'Full Ghost Protocol makes your node virtually invisible to non-mesh participants.',
       },
       {
         intent: 'shield_price',
-        keywords: ['shield free', 'cost of shield', 'stealth', 'ghost shield free'],
+        keywords: ['is ghost shield free', 'shield pricing', 'cost of shield', 'ghost shield free', 'shield cost'],
         response: 'Basic Stealth cloaking is included for all users, while higher tiers require network contribution.',
       },
       {
         intent: 'latency',
-        keywords: ['slow', 'latency', 'speed', 'slow down'],
+        keywords: ['slow down messaging', 'does ghost shield slow', 'shield latency', 'slow messaging', 'latency'],
         response: 'Ghost Shield may introduce minor latency due to the multi-hop routing required for privacy.',
       },
       {
@@ -104,7 +104,7 @@ export class GhostSupportBot {
       },
       {
         intent: 'pricing_free',
-        keywords: ['is ghostnet free', 'free', 'price', 'free forever'],
+        keywords: ['is ghostnet free', 'ghostnet free', 'free forever', 'ghostnet price'],
         response: 'GhostNet is free forever, supported by the N11X community and open-source contributions.',
       },
       {
@@ -119,7 +119,7 @@ export class GhostSupportBot {
       },
       {
         intent: 'builder',
-        keywords: ['who built', 'creator', 'founder', 'n11x labs'],
+        keywords: ['who built', 'who created', 'creator', 'founder', 'built by'],
         response: 'GhostNet was built by the N11X Labs collective.',
       },
       {
