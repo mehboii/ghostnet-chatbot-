@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GhostNet Support</title>
-  <script src="https://js.puter.com/v2/"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -570,22 +569,33 @@
   function addMsg(text, type) {
     const div = document.createElement('div');
     div.className = 'chat-msg ' + type;
-    if (type === 'bot' && text.includes('Terminal Error')) div.classList.add('error');
+    if (type === 'bot' && text.includes('having trouble')) div.classList.add('error');
     div.textContent = text;
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return div;
   }
 
+  let nextTurnId = 0;
 
   async function sendMessage(text) {
     if (!text.trim()) return;
     const userInput = text.trim();
-    addMsg(userInput, 'user');
     chatInput.value = '';
 
+    // Bind this turn's reply to its own placeholder bubble so answers
+    // always render under their own question, even with requests in flight.
+    const turnId = nextTurnId++;
+    addMsg(userInput, 'user').dataset.turnId = turnId;
+    const placeholder = addMsg('', 'bot');
+    placeholder.dataset.turnId = turnId;
+    placeholder.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+
     const response = await bot.ask(userInput);
-    addMsg(response, 'bot');
+    placeholder.innerHTML = '';
+    placeholder.textContent = response;
+    if (response.includes('having trouble')) placeholder.classList.add('error');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   // Event listeners

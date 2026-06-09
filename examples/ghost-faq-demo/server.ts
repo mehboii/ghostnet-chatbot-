@@ -36,10 +36,10 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/ask') {
     let body = '';
     req.on('data', (chunk: Buffer) => (body += chunk.toString()));
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const { message } = JSON.parse(body);
-        const reply = bot.ask(message ?? '');
+        const reply = await bot.ask(message ?? '');
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ reply }));
       } catch {

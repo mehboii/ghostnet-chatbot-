@@ -22,7 +22,7 @@ console.log('╚═════════════════════�
 console.log();
 
 function prompt() {
-  rl.question('ghost> ', (input) => {
+  rl.question('ghost> ', async (input) => {
     const trimmed = input.trim();
     if (trimmed.toLowerCase() === 'exit') {
       console.log('Session terminated.');
@@ -30,7 +30,7 @@ function prompt() {
       return;
     }
     console.log();
-    console.log(bot.ask(trimmed));
+    console.log(await bot.ask(trimmed));
     console.log();
     prompt();
   });
