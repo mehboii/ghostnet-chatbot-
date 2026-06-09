@@ -1,8 +1,38 @@
+export interface GhostSupportBotOptions {
+  /** Full URL of the Supabase kb-query edge function. */
+  kbQueryUrl?: string;
+  /** Supabase publishable (safe-to-expose) API key. */
+  supabaseKey?: string;
+  /** Minimum similarity (0-1) required to accept a knowledge-base match. */
+  similarityThreshold?: number;
+  /** Number of matches requested from the knowledge base. */
+  matchCount?: number;
+}
+
+interface KnowledgeMatch {
+  id: number;
+  content: string;
+  metadata: Record<string, unknown>;
+  similarity: number;
+}
+
+const DEFAULT_KB_QUERY_URL =
+  'https://cypmjgbtcfowsqlwkzfu.supabase.co/functions/v1/kb-query';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_3Ku966M5-NZw2X7vb_LiFA_lsfoZSmh';
+
 export class GhostSupportBot {
   private fallback: string;
   private db: Array<{ intent: string; keywords: string[]; response: string }>;
+  private kbQueryUrl: string;
+  private supabaseKey: string;
+  private similarityThreshold: number;
+  private matchCount: number;
 
-  constructor() {
+  constructor(options: GhostSupportBotOptions = {}) {
+    this.kbQueryUrl = options.kbQueryUrl ?? DEFAULT_KB_QUERY_URL;
+    this.supabaseKey = options.supabaseKey ?? DEFAULT_SUPABASE_KEY;
+    this.similarityThreshold = options.similarityThreshold ?? 0.78;
+    this.matchCount = options.matchCount ?? 3;
     this.fallback =
       "Terminal Error: Unrecognized command. Please specify if your query relates to 'authentication', 'encryption', 'hardware', or 'source'.";
 
@@ -228,6 +258,65 @@ export class GhostSupportBot {
   async ask(userInput: string): Promise<string> {
     if (!userInput) return this.fallback;
 
+    // 1. Local keyword matching (exact curated answers, works offline)
+    const localAnswer = this.matchLocal(userInput);
+    if (localAnswer) return localAnswer;
+
+    // 2. Supabase knowledge base (semantic search via kb-query edge function)
+    //    catches paraphrased questions the keyword matcher misses
+    const kbAnswer = await this.queryKnowledgeBase(userInput);
+    if (kbAnswer) return kbAnswer;
+
+    // 3. Puter AI fallback with safe try/catch
+    try {
+      // @ts-expect-error puter is a browser global injected by puter.js
+      if (typeof puter !== 'undefined') {
+        // @ts-expect-error puter is a browser global injected by puter.js
+        const aiResponse = await puter.ai.chat(userInput);
+        return aiResponse.toString();
+      }
+    } catch (error) {
+      console.error('Puter AI fallback failed:', error);
+    }
+
+    return this.fallback;
+  }
+
+  /**
+   * Queries the Supabase kb-query edge function for a semantically similar
+   * knowledge-base entry. Returns null on network failure or when no match
+   * clears the similarity threshold, so callers can fall back gracefully.
+   */
+  private async queryKnowledgeBase(query: string): Promise<string | null> {
+    try {
+      const res = await fetch(this.kbQueryUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: this.supabaseKey,
+          Authorization: `Bearer ${this.supabaseKey}`,
+        },
+        body: JSON.stringify({
+          query,
+          match_count: this.matchCount,
+          similarity_threshold: this.similarityThreshold,
+        }),
+      });
+      if (!res.ok) return null;
+
+      const data = (await res.json()) as { matches?: KnowledgeMatch[] };
+      const top = data.matches?.[0];
+      if (top && typeof top.content === 'string' && top.content.length > 0) {
+        return top.content;
+      }
+      return null;
+    } catch (error) {
+      console.error('Supabase knowledge base query failed:', error);
+      return null;
+    }
+  }
+
+  private matchLocal(userInput: string): string | null {
     const sanitizedInput = userInput.toLowerCase().replace(/\s+/g, ' ').trim();
     let bestMatch: { intent: string; keywords: string[]; response: string } | null = null;
     let highestScore = 0;
@@ -258,18 +347,6 @@ export class GhostSupportBot {
       return bestMatch.response;
     }
 
-    // Task 3: Puter fallback with safe try/catch
-    try {
-      // @ts-expect-error puter is a browser global injected by puter.js
-      if (typeof puter !== 'undefined') {
-        // @ts-expect-error puter is a browser global injected by puter.js
-        const aiResponse = await puter.ai.chat(userInput);
-        return aiResponse.toString();
-      }
-    } catch (error) {
-      console.error('Puter AI fallback failed:', error);
-    }
-
-    return this.fallback;
+    return null;
   }
 }
