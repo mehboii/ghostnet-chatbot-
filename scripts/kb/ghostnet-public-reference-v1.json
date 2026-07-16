@@ -1,0 +1,62 @@
+[
+  {
+    "content": "GhostNet is built for people whose communications carry real risk if exposed: journalists protecting sources, activists and organisers operating under surveillance, and anyone working on a network they do not control or trust — a hostile ISP, a monitored corporate or campus network, or a region where communication is filtered. It is equally usable by people who simply do not want their private conversations stored, scanned, or monetised. Nothing about GhostNet requires you to be in danger to benefit from it.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "who-ghostnet-is-for" }
+  },
+  {
+    "content": "GhostNet trust model: GhostNet assumes the network is hostile — relays may be observed, infrastructure may be seized, traffic may be logged in full. The security of your messages does not rest on any of those assumptions being wrong. What GhostNet protects: the content of your messages, the contents of your Vault, and the link between your identity and the accounts and addresses you use. What no communication system can fully hide from a global observer: the fact that a device is transmitting at all. GhostNet's cloaking features raise the cost of that observation substantially, but the honest claim is reduction of exposure, not invisibility.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "trust-model" }
+  },
+  {
+    "content": "How a GhostNet message travels: in a conventional messaging app your message goes to a company's server — a single point of failure, surveillance, and compulsion. In a GhostNet mesh, devices connect to each other as peers. A message hops from peer to peer until it reaches its destination, potentially across several intermediate devices, none of which can read it. If a peer is offline, nearby peers can hold the encrypted payload and forward it when a route opens up. This store-and-forward behaviour lets the mesh keep working when parts of it are unreachable, throttled, or blocked.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "mesh-store-and-forward" }
+  },
+  {
+    "content": "Ghost Radar is GhostNet's peer discovery view. It shows which GhostNet peers are reachable around you and through what path, so you can see the shape of the mesh you are actually part of rather than trusting an opaque connection indicator. Discovery respects your cloaking settings: raising your Ghost Shield tier reduces what you advertise to the network — a deliberate trade of less discoverability for a smaller footprint.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "ghost-radar", "feature": "ghost-radar" }
+  },
+  {
+    "content": "GhostNet identity keys use the secp256k1 elliptic curve, with keccak256 for address derivation — the same primitives used by Ethereum-family wallets. This makes GhostNet identities natively compatible with wallet-style tooling, which is what allows GhostNet Pay to work from the same identity you message with rather than bolting on a separate account. Ed25519 is used separately and narrowly, for signing during NAT traversal — the process of establishing connections between devices behind routers. It is not your identity key.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "identity-keypair" }
+  },
+  {
+    "content": "Where a key must be derived from something you remember — a PIN or passphrase — GhostNet uses PBKDF2 with 600,000 iterations. The iteration count is a deliberate cost: it makes each guess expensive, so brute-forcing a passphrase becomes impractical. GhostNet uses PBKDF2 rather than a memory-hard alternative for a specific engineering reason: memory-hard functions exhausted memory and crashed on low-end devices. GhostNet's users disproportionately include people on inexpensive hardware, and a key derivation function that only works on flagship phones is not a security feature — it is an exclusion. PBKDF2 at 600,000 iterations is a well-understood, standards-track choice that runs everywhere.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "passphrase-key-derivation" }
+  },
+  {
+    "content": "GhostNet cryptographic stack at a glance. Identity: secp256k1 elliptic curve keypair with keccak256 address derivation, seeded from a BIP-39 recovery phrase generated on-device. Message encryption: AES-256-GCM authenticated encryption providing confidentiality and tamper detection. Key derivation: HKDF-SHA-256 for session keys; PBKDF2 at 600,000 iterations for passphrase- and PIN-derived keys. NAT signing: Ed25519, used only for connection establishment, not identity. Node IDs: BLAKE3 hash, routing identifiers only with no personal information encoded. Value transfer: USDC on Polygon, sent to one-time stealth addresses.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "crypto-stack" }
+  },
+  {
+    "content": "Ghost Shield is GhostNet's cloaking system. Encryption protects what you say; Ghost Shield reduces what your device reveals about the fact that you are saying anything at all — the metadata layer most messaging apps leave exposed. Ghost Shield runs in four tiers, and each step up reduces your visible footprint at some cost in discoverability, battery, and latency. OFF: no cloaking, standard operation, full discoverability, lowest overhead. STEALTH: reduced advertisement of your presence to the network. GHOST: substantially minimised network footprint. PHANTOM: maximum cloaking — the most protective tier and the most costly in battery, latency, and discoverability. It is a dial, not a switch, because the right setting depends on your situation.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "ghost-shield", "feature": "ghost-shield" }
+  },
+  {
+    "content": "Every network interface has a hardware MAC address. Left alone, it is a stable, unique identifier that lets networks and passive observers recognise your specific device across time and locations, regardless of what app you are using. GhostNet randomises its MAC address, which breaks that correlation: an observer who saw your device on one network cannot use the hardware address to conclude it is the same device on another.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "mac-randomisation" }
+  },
+  {
+    "content": "The Vault is GhostNet's encrypted file storage. Files are encrypted on your device with AES-256-GCM before they are stored or synced — never after arrival, and never by the server. Filenames are encrypted alongside contents: a system that encrypts file bodies but stores plaintext filenames leaks an enormous amount through names alone, so in the Vault the storage layer holds opaque blobs. The master key is never stored in the clear on your device; it is wrapped by a PIN-derived key, so an attacker with the device storage still needs the PIN, and the PIN itself is protected by the 600,000-iteration PBKDF2 derivation.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "vault", "feature": "vault" }
+  },
+  {
+    "content": "GhostNet uses platform attestation — Play Integrity on Android and App Attest on iOS — to verify that the app talking to the network is a genuine, unmodified GhostNet build on a genuine device. This defends the network against automated abuse and tampered clients. It is a check on software authenticity, not a surveillance mechanism, and it does not give GhostNet any ability to read your messages — nothing could, because the keys are not on the server.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "device-integrity" }
+  },
+  {
+    "content": "GhostNet is offered in three plan tiers — Ghost, Phantom, and Spectre — which differ in capacity and advanced capabilities. One thing does not differ between them: the cryptography. End-to-end encryption, on-device identity, and the guarantee that GhostNet cannot read your messages are properties of the protocol, not features of a paid plan. Privacy is not upsold. For current plan contents and pricing, see the GhostNet website — those details change and the site is the authoritative source.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "plans" }
+  },
+  {
+    "content": "GhostNet is usable as a platform, not only an app. The @n11x/ghostnet-sdk TypeScript SDK is published on npm and ships both ESM and CommonJS builds, so it works in modern bundlers and legacy Node projects alike. The SDK, the CLI, and ATOMIS are released under the MIT licence — a deliberate position: a privacy system that asks you to trust claims you cannot inspect is asking for the wrong thing. Open source is what makes privacy by mathematics checkable rather than merely stated.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "developer-platform" }
+  },
+  {
+    "content": "ATOMIS is a programming language developed at N11X Labs, using the .ato file extension. It is open source under the MIT licence and part of the wider N11X toolchain rather than something a GhostNet user needs to know about to use GhostNet.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "atomis" }
+  },
+  {
+    "content": "Who builds GhostNet? GhostNet is built by N11X Labs (the N11X Collective), based in Lucknow, India.",
+    "metadata": { "source": "ghostnet-public-reference-v1", "section": "faq-builder" }
+  }
+]

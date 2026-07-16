@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public-by-design identifiers: Supabase publishable keys (safe for frontend) and GhostNet BLE GATT service/characteristic UUIDs (advertised over the air)"
+regexes = [
+  '''sb_publishable_[A-Za-z0-9_-]+''',
+  '''a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d[0-9a-f]''',
+]
